@@ -1,0 +1,5 @@
+/data/*
+/runs/*
+/data.zip
+.venv/*
+yolov8n-pose.pt
