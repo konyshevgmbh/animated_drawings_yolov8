@@ -1,7 +1,32 @@
 # Training: YOLOv8-pose on Amateur Drawings
 
-Fine-tunes `yolov8n-pose.pt` on the [Amateur Drawings Dataset](https://ai.meta.com/blog/ai-dataset-animation-drawings/)
+Fine-tunes `yolov8n-pose.pt` ( `drawn_humanoid_pose.pt` ) on the [Amateur Drawings Dataset](https://ai.meta.com/blog/ai-dataset-animation-drawings/)
 ([AnimatedDrawings](https://github.com/facebookresearch/AnimatedDrawings), 178 000 annotated drawn humanoids, COCO-17 keypoints, MIT license).
+
+---
+## Training Report
+
+- **Environment:** Ultralytics 8.4.51, Python 3.12.13, torch 2.10.0+cu128, CUDA: Tesla T4 (14913 MiB).
+- **Base model:** `yolov8n-pose.pt` (YOLOv8n-pose).
+- **Dataset:** ~3000 train images, ~500 val images (validation instances reported: 495).
+- **Training schedule:** 50 epochs, batch=16, imgsz=640, AMP enabled, pretrained weights transferred, one layer partially frozen, `auto` optimizer → AdamW (lr≈0.002, weight_decay=0.0005).
+- **Augmentations:** `randaugment` (auto_augment), mosaic enabled early, albumentations applied (Blur, MedianBlur, ToGray, CLAHE, p=0.01).
+- **Best validation results (from `/content/runs/drawn_humanoid_pose/weights/best.pt`):**
+  - **Box:** Precision=0.921, Recall=0.937, mAP50=0.956, mAP50-95=0.771
+  - **Pose:** Precision=0.944, Recall=0.933, mAP50=0.956, mAP50-95=0.722
+- **Runtime / artifacts:** 50 epochs completed in 1 hour. `drawn_humanoid_pose.pt` saved (optimizer stripped, ~6.8 MB). ONNX export available as `drawn_humanoid_pose.onnx`.
+
+### Example previews
+
+Training labels preview (examples):
+
+![labels preview](input.png)
+
+Validation predictions preview (model `drawn_humanoid_pose.pt`):
+
+![predictions preview](output.png)
+
+These images show typical ground-truth keypoint labels (left) and model pose predictions on validation images (right).
 
 ---
 
@@ -135,29 +160,6 @@ Best weights: `training/runs/drawn_humanoid_pose/weights/best.pt`
 
 To use the trained model in `annotate_yolo.py`, pass the path to `best.pt` instead of `yolov8n-pose.pt`.
 
-## Training Report
-
-- **Environment:** Ultralytics 8.4.51, Python 3.12.13, torch 2.10.0+cu128, CUDA: Tesla T4 (14913 MiB).
-- **Base model:** `yolov8n-pose.pt` (YOLOv8n-pose, ~3.3M parameters, ~9.3 GFLOPs).
-- **Dataset:** ~3000 train images, ~500 val images (validation instances reported: 495).
-- **Training schedule:** 50 epochs, batch=16, imgsz=640, AMP enabled, pretrained weights transferred, one layer partially frozen, `auto` optimizer → AdamW (lr≈0.002, weight_decay=0.0005).
-- **Augmentations:** `randaugment` (auto_augment), mosaic enabled early, albumentations applied (Blur, MedianBlur, ToGray, CLAHE, p=0.01).
-- **Best validation results (from `/content/runs/drawn_humanoid_pose/weights/best.pt`):**
-  - **Box:** Precision=0.921, Recall=0.937, mAP50=0.956, mAP50-95=0.771
-  - **Pose:** Precision=0.944, Recall=0.933, mAP50=0.956, mAP50-95=0.722
-- **Runtime / artifacts:** 50 epochs completed in ~0.934 hours. `last.pt` and `best.pt` saved (optimizer stripped, ~6.8 MB). ONNX export available as `best.onnx`.
-
-### Example previews
-
-Training labels preview (examples):
-
-![labels preview](input.png)
-
-Validation predictions preview (model `drawn_humanoid_pose.pt`):
-
-![predictions preview](output.png)
-
-These images show typical ground-truth keypoint labels (left) and model pose predictions on validation images (right).
 
 ---
 
